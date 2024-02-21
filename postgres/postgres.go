@@ -55,7 +55,7 @@ func QueryOne[T any](ctx context.Context, pg *pgxpool.Pool, query string, args .
 		rows pgx.Rows
 		err  error
 	)
-	rows, _ = pg.Query(ctx, query, args)
+	rows, _ = pg.Query(ctx, query, args...)
 	res, err = pgx.CollectExactlyOneRow[T](rows, pgx.RowToStructByName[T])
 	return res, err
 }
@@ -66,7 +66,7 @@ func QueryMany[T any](ctx context.Context, pg *pgxpool.Pool, query string, args 
 		rows pgx.Rows
 		err  error
 	)
-	rows, _ = pg.Query(ctx, query, args)
+	rows, _ = pg.Query(ctx, query, args...)
 	res, err = pgx.CollectRows[T](rows, pgx.RowToStructByName[T])
 	return res, err
 }
