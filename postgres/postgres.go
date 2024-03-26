@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/yogenyslav/logger"
-	"time"
 )
 
 var (
@@ -55,7 +56,11 @@ func QueryStruct[T any](ctx context.Context, pg *pgxpool.Pool, query string, arg
 		rows pgx.Rows
 		err  error
 	)
-	rows, _ = pg.Query(ctx, query, args...)
+	rows, err = pg.Query(ctx, query, args...)
+	if err != nil {
+		return res, err
+	}
+	defer rows.Close()
 	res, err = pgx.CollectExactlyOneRow[T](rows, pgx.RowToStructByName[T])
 	return res, err
 }
@@ -66,7 +71,11 @@ func QueryStructSlice[T any](ctx context.Context, pg *pgxpool.Pool, query string
 		rows pgx.Rows
 		err  error
 	)
-	rows, _ = pg.Query(ctx, query, args...)
+	rows, err = pg.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 	res, err = pgx.CollectRows[T](rows, pgx.RowToStructByName[T])
 	return res, err
 }
@@ -77,7 +86,11 @@ func QueryPrimitive[T any](ctx context.Context, pg *pgxpool.Pool, query string, 
 		rows pgx.Rows
 		err  error
 	)
-	rows, _ = pg.Query(ctx, query, args...)
+	rows, err = pg.Query(ctx, query, args...)
+	if err != nil {
+		return res, err
+	}
+	defer rows.Close()
 	res, err = pgx.CollectExactlyOneRow[T](rows, pgx.RowTo[T])
 	return res, err
 }
@@ -88,7 +101,11 @@ func QueryPrimitiveSlice[T any](ctx context.Context, pg *pgxpool.Pool, query str
 		rows pgx.Rows
 		err  error
 	)
-	rows, _ = pg.Query(ctx, query, args...)
+	rows, err = pg.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 	res, err = pgx.CollectRows[T](rows, pgx.RowTo[T])
 	return res, err
 }
